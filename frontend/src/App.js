@@ -162,7 +162,7 @@ function App() {
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder={isLoggedIn ? "Add your comment..." : "Login to comment"}
+                  placeholder={isLoggedIn ? 'Add your comment...' : 'Login to comment'}
                   rows="3"
                   disabled={!isLoggedIn}
                 />

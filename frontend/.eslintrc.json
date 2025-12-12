@@ -1,0 +1,10 @@
+{
+  "extends": ["react-app"],
+  "rules": {
+    "quotes": "off",
+    "jsx-quotes": "off",
+    "semi": "off",
+    "comma-dangle": "off",
+    "no-unused-vars": "warn"
+  }
+}
