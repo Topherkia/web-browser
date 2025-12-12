@@ -21,15 +21,20 @@ const BrowserWindow = ({ url, onNavigation, searchEngine }) => {
         }
     };
 
-    const navigateTo = (newUrl) => {
-        if (!newUrl.startsWith('http') && !newUrl.startsWith('/') && !newUrl.startsWith('about:')) {
-            newUrl = 'https://' + newUrl;
-        }
-        setCurrentUrl(newUrl);
-        setIframeError(false);
-        onNavigation(newUrl);
-    };
-
+        const navigateTo = (newUrl) => {
+            // Handle local route
+            if (newUrl === '/local' || newUrl === '/local-test') {
+                onNavigation('/local');
+                return;
+            }
+            
+            if (!newUrl.startsWith('http') && !newUrl.startsWith('/') && !newUrl.startsWith('about:')) {
+                newUrl = 'https://' + newUrl;
+            }
+            setCurrentUrl(newUrl);
+            setIframeError(false);
+            onNavigation(newUrl);
+        };
     const handleLoadStart = () => {
         setIsLoading(true);
         setIframeError(false);
@@ -40,11 +45,19 @@ const BrowserWindow = ({ url, onNavigation, searchEngine }) => {
     };
 
     const getSandboxValue = () => {
-        if (currentUrl.startsWith('/') || currentUrl.startsWith('about:')) {
-            // Local content - more permissions
-            return 'allow-scripts allow-same-origin allow-forms allow-popups';
+        // For local files (same origin), we need different permissions
+        if (currentUrl.startsWith('/') || currentUrl === 'about:blank') {
+            // For truly local content, we can be more restrictive
+            if (currentUrl === '/local-test.html') {
+                return 'allow-scripts allow-same-origin';
+            }
+            // For other local files
+            return 'allow-scripts';
+        } else if (currentUrl.startsWith('about:')) {
+            // about:blank and similar
+            return 'allow-scripts allow-same-origin';
         } else {
-            // External content - restricted
+            // External URLs - most restrictive
             return 'allow-scripts allow-popups allow-forms';
         }
     };
@@ -142,18 +155,20 @@ const BrowserWindow = ({ url, onNavigation, searchEngine }) => {
                             width: '100%',
                             height: '100%',
                             border: 'none',
-                            display: 'block'
+                            display: iframeError ? 'none' : 'block'
                         }}
                         title="Web Browser"
-                        onLoad={handleLoadEnd}
-                        onError={() => {
-                            setIframeError(true);
+                        onLoad={() => {
                             setIsLoading(false);
+                            setIframeError(false);
+                        }}
+                        onError={() => {
+                            setIsLoading(false);
+                            setIframeError(true);
                         }}
                         sandbox={getSandboxValue()}
-                        allow="geolocation; microphone; camera"
                         referrerPolicy="no-referrer-when-downgrade"
-                    />
+                />
                 ) : (
                     <div style={{
                         position: 'absolute',

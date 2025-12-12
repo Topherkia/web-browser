@@ -9,7 +9,7 @@ import SearchEngineSelector from './components/SearchEngineSelector';
 import { AuthProvider } from './contexts/AuthContext';
 
 const App = () => {
-    const [currentUrl, setCurrentUrl] = useState('/local-test.html');
+    const [currentUrl, setCurrentUrl] = useState('/local'); // Changed from HTML file
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [searchEngine, setSearchEngine] = useState('google');
@@ -28,6 +28,14 @@ const App = () => {
         setIsLoggedIn(false);
         localStorage.removeItem('user');
     };
+
+        const renderContent = () => {
+        if (currentUrl === '/local') {
+            return <LocalTestPage />;
+        } else if (currentUrl.startsWith('/')) {
+            // Handle other local routes if needed
+            return <LocalTestPage />;
+        }}
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -98,11 +106,19 @@ const App = () => {
                             currentEngine={searchEngine}
                             onEngineChange={setSearchEngine}
                         />
-                        <BrowserWindow
+                        {/*<BrowserWindow
                             url={currentUrl}
                             onNavigation={handleNavigation}
                             searchEngine={searchEngine}
-                        />
+                        />*/}
+                        <div style={{ flex: 3, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <SearchEngineSelector
+                                currentEngine={searchEngine}
+                                onEngineChange={setSearchEngine}
+                            />
+                            {renderContent()}
+                        </div>
+
                     </div>
                     
                     <div style={{ flex: 1, minWidth: '300px', overflowY: 'auto' }}>

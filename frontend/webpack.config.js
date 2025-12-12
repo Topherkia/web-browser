@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     mode: 'development',
-    devtool: 'eval', // Simpler source maps
+    devtool: false, 
     entry: './src/index.jsx',
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -55,17 +55,15 @@ module.exports = {
                 warnings: false,
                 errors: true
             },
-            logging: 'error'
+            logging: 'none'
         }
     },
     performance: {
         hints: false
     },
     stats: {
-        modules: false,
-        chunks: false,
-        assets: false,
-        children: false,
-        source: false // Don't show source information
+        all: false, // Disable all stats
+        errors: true, // Only show errors
+        warnings: false // Hide warnings
     }
 };
