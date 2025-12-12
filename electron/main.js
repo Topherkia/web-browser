@@ -1,4 +1,5 @@
-const { app, BrowserWindow, session } = require('electron');
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
 
 let mainWindow;
 
@@ -9,41 +10,27 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            webviewTag: false,
-            sandbox: true,
-            enableRemoteModule: false
-        }
+            sandbox: false
+        },
+        icon: path.join(__dirname, 'icon.ico'),
+        title: 'Web Browser with Rating System'
     });
 
-    // Set proper Content Security Policy
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-        callback({
-            responseHeaders: {
-                ...details.responseHeaders,
-                'Content-Security-Policy': [
-                    // Production-ready CSP
-                    "default-src 'self'",
-                    "script-src 'self'",
-                    "style-src 'self' 'unsafe-inline'",
-                    "img-src 'self' data: https:",
-                    "font-src 'self'",
-                    "connect-src 'self' http://localhost:5000",
-                    "frame-src 'self' https:",
-                    "base-uri 'self'",
-                    "form-action 'self'",
-                    "object-src 'none'"
-                ].join('; ')
-            }
-        });
-    });
-
-    // Load frontend
-    mainWindow.loadURL('http://localhost:3000');
-    
-    // Open DevTools in development
+    // In development: load from localhost
+    // In production: load built files
     if (process.env.NODE_ENV === 'development') {
+        mainWindow.loadURL('http://localhost:3000');
         mainWindow.webContents.openDevTools();
+    } else {
+        mainWindow.loadFile(path.join(__dirname, '../frontend/build/index.html'));
     }
+
+    // Remove menu for cleaner look
+    mainWindow.setMenu(null);
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
 }
 
 app.whenReady().then(createWindow);
@@ -55,7 +42,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (mainWindow === null) {
         createWindow();
     }
 });
