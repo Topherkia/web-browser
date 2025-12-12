@@ -1,16 +1,11 @@
-// frontend/src/components/BrowserWindow.jsx
-// Browser window component with webview and navigation controls
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import AddressBar from './AddressBar';
-import '../styles/BrowserWindow.css';
 
 const BrowserWindow = ({ url, onNavigation, searchEngine }) => {
-    const webviewRef = useRef(null);
+    const iframeRef = useRef(null);
     const [currentUrl, setCurrentUrl] = useState(url);
     const [isLoading, setIsLoading] = useState(false);
-    const [canGoBack, setCanGoBack] = useState(false);
-    const [canGoForward, setCanGoForward] = useState(false);
+    const [iframeError, setIframeError] = useState(false);
 
     const searchEngines = {
         google: 'https://www.google.com/search?q=',
@@ -27,91 +22,249 @@ const BrowserWindow = ({ url, onNavigation, searchEngine }) => {
     };
 
     const navigateTo = (newUrl) => {
-        if (!newUrl.startsWith('http')) {
+        if (!newUrl.startsWith('http') && !newUrl.startsWith('/') && !newUrl.startsWith('about:')) {
             newUrl = 'https://' + newUrl;
         }
         setCurrentUrl(newUrl);
+        setIframeError(false);
         onNavigation(newUrl);
     };
 
-    const handleGoBack = () => {
-        if (webviewRef.current && canGoBack) {
-            webviewRef.current.goBack();
-        }
+    const handleLoadStart = () => {
+        setIsLoading(true);
+        setIframeError(false);
     };
 
-    const handleGoForward = () => {
-        if (webviewRef.current && canGoForward) {
-            webviewRef.current.goForward();
-        }
+    const handleLoadEnd = () => {
+        setIsLoading(false);
     };
 
-    const handleRefresh = () => {
-        if (webviewRef.current) {
-            webviewRef.current.reload();
+    const getSandboxValue = () => {
+        if (currentUrl.startsWith('/') || currentUrl.startsWith('about:')) {
+            // Local content - more permissions
+            return 'allow-scripts allow-same-origin allow-forms allow-popups';
+        } else {
+            // External content - restricted
+            return 'allow-scripts allow-popups allow-forms';
         }
-    };
-
-    const handleHome = () => {
-        navigateTo('https://www.google.com');
     };
 
     return (
-        <div className="browser-window">
-            <div className="browser-controls">
-                <button 
-                    onClick={handleGoBack} 
-                    disabled={!canGoBack}
-                    className="nav-btn"
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            backgroundColor: 'white'
+        }}>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px',
+                backgroundColor: '#f8f9fa',
+                borderBottom: '1px solid #ddd'
+            }}>
+                <button
+                    onClick={() => iframeRef.current?.contentWindow?.history?.back()}
+                    style={{
+                        padding: '5px 10px',
+                        border: '1px solid #ddd',
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                    }}
+                    title="Go Back"
                 >
                     ←
                 </button>
-                <button 
-                    onClick={handleGoForward} 
-                    disabled={!canGoForward}
-                    className="nav-btn"
+                <button
+                    onClick={() => iframeRef.current?.contentWindow?.history?.forward()}
+                    style={{
+                        padding: '5px 10px',
+                        border: '1px solid #ddd',
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                    }}
+                    title="Go Forward"
                 >
                     →
                 </button>
-                <button onClick={handleRefresh} className="nav-btn">
+                <button
+                    onClick={() => iframeRef.current?.contentWindow?.location?.reload()}
+                    style={{
+                        padding: '5px 10px',
+                        border: '1px solid #ddd',
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                    }}
+                    title="Refresh"
+                >
                     ↻
                 </button>
-                <button onClick={handleHome} className="nav-btn">
+                <button
+                    onClick={() => navigateTo('/local-test.html')}
+                    style={{
+                        padding: '5px 10px',
+                        border: '1px solid #ddd',
+                        backgroundColor: 'white',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                    }}
+                    title="Home"
+                >
                     ⌂
                 </button>
                 
-                <AddressBar 
-                    currentUrl={currentUrl}
-                    onNavigate={navigateTo}
-                    onSearch={handleSearch}
-                />
+                <div style={{ flex: 1 }}>
+                    <AddressBar
+                        currentUrl={currentUrl}
+                        onNavigate={navigateTo}
+                        onSearch={handleSearch}
+                    />
+                </div>
             </div>
 
-            <div className="webview-container">
-                {isLoading && (
-                    <div className="loading-indicator">
-                        <div className="spinner"></div>
-                        <span>Loading...</span>
+            <div style={{ flex: 1, position: 'relative' }}>
+                {!iframeError ? (
+                    <iframe
+                        ref={iframeRef}
+                        src={currentUrl}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            border: 'none',
+                            display: 'block'
+                        }}
+                        title="Web Browser"
+                        onLoad={handleLoadEnd}
+                        onError={() => {
+                            setIframeError(true);
+                            setIsLoading(false);
+                        }}
+                        sandbox={getSandboxValue()}
+                        allow="geolocation; microphone; camera"
+                        referrerPolicy="no-referrer-when-downgrade"
+                    />
+                ) : (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'white',
+                        padding: '40px',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '48px', marginBottom: '20px' }}>⚠️</div>
+                        <h3 style={{ color: '#dc3545', marginBottom: '10px' }}>
+                            Unable to Load Website
+                        </h3>
+                        <p style={{ marginBottom: '20px', color: '#666' }}>
+                            The website <strong>{currentUrl}</strong> cannot be displayed.<br/>
+                            This may be due to security restrictions or network issues.
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => window.open(currentUrl, '_blank')}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#007bff',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                Open in External Browser
+                            </button>
+                            <button
+                                onClick={() => navigateTo('/local-test.html')}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#6c757d',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                Return to Home
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setIframeError(false);
+                                    iframeRef.current?.contentWindow?.location?.reload();
+                                }}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#28a745',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                Try Again
+                            </button>
+                        </div>
                     </div>
                 )}
                 
-                <webview
-                    ref={webviewRef}
-                    src={currentUrl}
-                    className="webview"
-                    useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                    onDidStartLoading={() => setIsLoading(true)}
-                    onDidStopLoading={() => setIsLoading(false)}
-                    onDidNavigate={(event) => {
-                        setCurrentUrl(event.url);
-                        onNavigation(event.url);
-                    }}
-                    onUpdateTargetUrl={(event) => {
-                        // Update address bar with hovered links
-                        console.log('Hovering over:', event.url);
-                    }}
-                />
+                {isLoading && !iframeError && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        padding: '15px',
+                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        textAlign: 'center',
+                        zIndex: 10,
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    }}>
+                        <div style={{
+                            display: 'inline-block',
+                            width: '20px',
+                            height: '20px',
+                            border: '3px solid #f3f3f3',
+                            borderTop: '3px solid #007bff',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite',
+                            marginRight: '10px',
+                            verticalAlign: 'middle'
+                        }}></div>
+                        <span style={{ verticalAlign: 'middle', color: '#007bff' }}>
+                            Loading {currentUrl}...
+                        </span>
+                    </div>
+                )}
             </div>
+
+            <style>
+                {`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                `}
+            </style>
         </div>
     );
 };

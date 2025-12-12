@@ -1,3 +1,4 @@
+/*
 // electron/preload.js
 // Preload script for Electron security context
 
@@ -83,3 +84,10 @@ window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     ipcRenderer.send('unhandled-rejection', event.reason);
 });
+*/
+// electron/preload.js(AI)
+window.electronAPI = {
+    // You can add Electron-specific APIs here if needed
+    platform: process.platform,
+    isElectron: true
+};

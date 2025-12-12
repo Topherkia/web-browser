@@ -1,5 +1,5 @@
 // frontend/src/App.jsx
-// Main React component for the Web Browser application
+// Main App component
 
 import React, { useState, useEffect } from 'react';
 import BrowserWindow from './components/BrowserWindow';
@@ -7,10 +7,9 @@ import RatingPanel from './components/RatingPanel';
 import LoginModal from './components/LoginModal';
 import SearchEngineSelector from './components/SearchEngineSelector';
 import { AuthProvider } from './contexts/AuthContext';
-import './styles/App.css';
 
 const App = () => {
-    const [currentUrl, setCurrentUrl] = useState('https://www.google.com');
+    const [currentUrl, setCurrentUrl] = useState('/local-test.html');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [searchEngine, setSearchEngine] = useState('google');
@@ -31,7 +30,6 @@ const App = () => {
     };
 
     useEffect(() => {
-        // Check if user is already logged in
         const userData = localStorage.getItem('user');
         if (userData) {
             setIsLoggedIn(true);
@@ -40,37 +38,75 @@ const App = () => {
 
     return (
         <AuthProvider>
-            <div className="app-container">
-                <header className="app-header">
-                    <h1>Web Browser with Rating System</h1>
-                    <div className="user-controls">
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100vh',
+                fontFamily: 'Arial, sans-serif'
+            }}>
+                <header style={{
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    padding: '15px 20px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <h1 style={{ margin: 0, fontSize: '24px' }}>Web Browser with Rating System</h1>
+                    <div>
                         {isLoggedIn ? (
-                            <button onClick={handleLogout} className="logout-btn">
+                            <button
+                                onClick={handleLogout}
+                                style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: 'white',
+                                    color: '#007bff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
                                 Logout
                             </button>
                         ) : (
-                            <button onClick={() => setShowLoginModal(true)} className="login-btn">
+                            <button
+                                onClick={() => setShowLoginModal(true)}
+                                style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: 'white',
+                                    color: '#007bff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
                                 Login / Sign Up
                             </button>
                         )}
                     </div>
                 </header>
 
-                <div className="main-content">
-                    <div className="browser-section">
-                        <SearchEngineSelector 
+                <div style={{
+                    display: 'flex',
+                    flex: 1,
+                    padding: '20px',
+                    gap: '20px',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{ flex: 3, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <SearchEngineSelector
                             currentEngine={searchEngine}
                             onEngineChange={setSearchEngine}
                         />
-                        <BrowserWindow 
+                        <BrowserWindow
                             url={currentUrl}
                             onNavigation={handleNavigation}
                             searchEngine={searchEngine}
                         />
                     </div>
                     
-                    <div className="rating-section">
-                        <RatingPanel 
+                    <div style={{ flex: 1, minWidth: '300px', overflowY: 'auto' }}>
+                        <RatingPanel
                             url={currentUrl}
                             isLoggedIn={isLoggedIn}
                             onLoginRequest={() => setShowLoginModal(true)}

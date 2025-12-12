@@ -1,0 +1,66 @@
+{
+  "name": "web-browser-rating-system",
+  "version": "1.0.0",
+  "description": "Desktop web browser with integrated webpage rating and commenting system",
+  "main": "electron/main.js",
+  "scripts": {
+    "install-all": "npm run install-backend && npm run install-frontend && npm run install-electron",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "install-electron": "cd electron && npm install",
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\" \"npm run start-electron\"",
+    "start-backend": "cd backend && npm start",
+    "start-frontend": "cd frontend && npm start",
+    "start-electron": "cd electron && npm start",
+    "start-dev": "cross-env NODE_ENV=development npm start",
+    "start-prod": "cross-env NODE_ENV=production npm start",
+    "build": "npm run build-frontend && npm run build-electron",
+    "build-frontend": "cd frontend && npm run build",
+    "build-electron": "cd electron && npm run build",
+    "pack": "cd electron && npm run pack",
+    "dist": "cd electron && npm run dist",
+    "test": "npm run test-backend && npm run test-frontend",
+    "test-backend": "cd backend && npm test",
+    "test-frontend": "cd frontend && npm test",
+    "lint": "npm run lint-backend && npm run lint-frontend",
+    "lint-backend": "cd backend && npm run lint",
+    "lint-frontend": "cd frontend && npm run lint",
+    "clean": "npm run clean-backend && npm run clean-frontend && npm run clean-electron",
+    "clean-backend": "cd backend && npm run clean",
+    "clean-frontend": "cd frontend && npm run clean",
+    "clean-electron": "cd electron && npm run clean",
+    "db-init": "node backend/database/init.js",
+    "db-reset": "node backend/database/reset.js"
+  },
+  "keywords": [
+    "web-browser",
+    "rating-system",
+    "comments",
+    "electron",
+    "react",
+    "nodejs",
+    "mariadb",
+    "desktop-app"
+  ],
+  "author": "Web Browser Rating System Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tx00-web-en/web-browser-rating-system"
+  },
+  "bugs": {
+    "url": "https://github.com/tx00-web-en/web-browser-rating-system/issues"
+  },
+  "homepage": "https://github.com/tx00-web-en/web-browser-rating-system#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

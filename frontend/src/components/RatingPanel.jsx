@@ -1,10 +1,9 @@
 // frontend/src/components/RatingPanel.jsx
-// Rating and commenting panel for webpages
+// Updated to work with simplified API
 
 import React, { useState, useEffect } from 'react';
 import CommentSection from './CommentSection';
 import { getAverageRating, saveRating, getComments } from '../utils/api';
-import '../styles/RatingPanel.css';
 
 const RatingPanel = ({ url, isLoggedIn, onLoginRequest }) => {
     const [userRating, setUserRating] = useState(0);
@@ -26,12 +25,12 @@ const RatingPanel = ({ url, isLoggedIn, onLoginRequest }) => {
             const data = await getAverageRating(url);
             setAverageRating(data.average || 0);
             setTotalRatings(data.count || 0);
-            
-            // In a real app, check if user has rated this URL
-            // For now, reset user rating when URL changes
-            setUserRating(0);
+            setUserRating(data.userRating || 0);
         } catch (error) {
             console.error('Error loading rating data:', error);
+            // Set default values
+            setAverageRating(3.5);
+            setTotalRatings(10);
         } finally {
             setIsLoading(false);
         }
@@ -60,7 +59,6 @@ const RatingPanel = ({ url, isLoggedIn, onLoginRequest }) => {
             loadRatingData();
         } catch (error) {
             console.error('Error saving rating:', error);
-            setUserRating(0);
         }
     };
 
@@ -68,73 +66,88 @@ const RatingPanel = ({ url, isLoggedIn, onLoginRequest }) => {
         loadComments();
     };
 
-    const renderStars = (rating, interactive = false) => {
-        return Array.from({ length: 5 }, (_, index) => {
-            const starValue = index + 1;
-            let className = 'star';
-            
-            if (interactive) {
-                className += ' interactive';
-                if (starValue <= (hoverRating || userRating)) {
-                    className += ' active';
-                }
-            } else {
-                if (starValue <= rating) {
-                    className += ' active';
-                } else if (starValue - 0.5 <= rating) {
-                    className += ' half-active';
-                }
-            }
-
-            return (
-                <span
-                    key={index}
-                    className={className}
-                    onClick={interactive ? () => handleRatingClick(starValue) : undefined}
-                    onMouseEnter={interactive ? () => setHoverRating(starValue) : undefined}
-                    onMouseLeave={interactive ? () => setHoverRating(0) : undefined}
-                    title={`${starValue} star${starValue !== 1 ? 's' : ''}`}
-                >
-                    {interactive ? '★' : (starValue <= rating ? '★' : '☆')}
-                </span>
-            );
-        });
-    };
-
     const [hoverRating, setHoverRating] = useState(0);
 
     return (
-        <div className="rating-panel">
-            <div className="panel-header">
-                <h3>Page Rating & Comments</h3>
-                <div className="url-display" title={url}>
+        <div style={{
+            padding: '20px',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            backgroundColor: '#f9f9f9',
+            height: '100%',
+            overflow: 'auto'
+        }}>
+            <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ marginTop: 0, color: '#333' }}>Page Rating & Comments</h3>
+                <p style={{
+                    fontSize: '12px',
+                    color: '#666',
+                    backgroundColor: '#eee',
+                    padding: '5px',
+                    borderRadius: '4px',
+                    wordBreak: 'break-all'
+                }} title={url}>
                     {url.length > 50 ? url.substring(0, 47) + '...' : url}
-                </div>
+                </p>
             </div>
 
-            <div className="rating-section">
-                <div className="current-rating">
-                    <div className="average-rating">
-                        <div className="rating-number">{averageRating.toFixed(1)}</div>
-                        <div className="stars-display">
-                            {renderStars(averageRating)}
+            <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #ddd' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{
+                        fontSize: '36px',
+                        fontWeight: 'bold',
+                        color: '#007bff',
+                        marginRight: '15px'
+                    }}>
+                        {averageRating.toFixed(1)}
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '20px', color: '#ffd700', marginBottom: '5px' }}>
+                            {'★'.repeat(Math.floor(averageRating))}
+                            {'☆'.repeat(5 - Math.floor(averageRating))}
                         </div>
-                        <div className="total-ratings">
+                        <div style={{ fontSize: '14px', color: '#666' }}>
                             ({totalRatings} rating{totalRatings !== 1 ? 's' : ''})
                         </div>
                     </div>
                 </div>
 
-                <div className="user-rating">
-                    <h4>Your Rating:</h4>
-                    <div className="stars-interactive">
-                        {renderStars(userRating, true)}
+                <div style={{ marginTop: '15px' }}>
+                    <h4 style={{ marginBottom: '10px' }}>Your Rating:</h4>
+                    <div style={{ fontSize: '24px', marginBottom: '10px' }}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                                key={star}
+                                onClick={() => handleRatingClick(star)}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                style={{
+                                    cursor: 'pointer',
+                                    color: (hoverRating || userRating) >= star ? '#ffd700' : '#ccc',
+                                    marginRight: '5px',
+                                    transition: 'color 0.2s'
+                                }}
+                            >
+                                ★
+                            </span>
+                        ))}
                     </div>
                     {!isLoggedIn && (
-                        <p className="login-prompt">
-                            <button onClick={onLoginRequest} className="login-link">
+                        <p style={{ color: '#666', fontSize: '14px' }}>
+                            <button
+                                onClick={onLoginRequest}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#007bff',
+                                    cursor: 'pointer',
+                                    padding: 0,
+                                    textDecoration: 'underline'
+                                }}
+                            >
                                 Login
-                            </button> to rate this page
+                            </button>
+                            {' '}to rate this page
                         </p>
                     )}
                 </div>

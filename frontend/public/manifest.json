@@ -1,0 +1,9 @@
+{
+  "short_name": "Web Browser",
+  "name": "Web Browser with Rating System",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Local Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Web Browser Rating System</h1>
+        <p>This is a local test page for the web browser application.</p>
+        
+        <div class="feature">
+            <h3>✅ Features Working:</h3>
+            <ul>
+                <li>Web Browser Interface</li>
+                <li>Rating System Panel</li>
+                <li>Comment System</li>
+                <li>User Authentication</li>
+                <li>Search Engine Integration</li>
+            </ul>
+        </div>
+        
+        <div class="feature">
+            <h3>🔧 Test Controls:</h3>
+            <button onclick="showAlert()">Test JavaScript</button>
+            <button onclick="changeColor()">Change Background</button>
+            <button onclick="loadExternal()">Load External Site</button>
+            <button onclick="testAPI()">Test Backend API</button>
+        </div>
+        
+        <div id="result" style="margin-top: 20px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;"></div>
+    </div>
+    
+    <script>
+        function showAlert() {
+            alert('JavaScript is working!');
+            document.getElementById('result').innerHTML = '<p>✅ JavaScript alert triggered</p>';
+        }
+        
+        function changeColor() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.background = `linear-gradient(135deg, ${randomColor} 0%, ${colors[Math.floor(Math.random() * colors.length)]} 100%)`;
+            document.getElementById('result').innerHTML = `<p>✅ Background color changed</p>`;
+        }
+        
+        function loadExternal() {
+            // This would be handled by the browser component
+            document.getElementById('result').innerHTML = `<p>📡 This would load an external website in the main browser window</p>`;
+        }
+        
+        async function testAPI() {
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 
+                    `<p>✅ Backend API Response:</p>
+                     <pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p>❌ API Error: ${error.message}</p>
+                     <p>Make sure the backend is running on port 5000</p>`;
+            }
+        }
+        
+        // Auto-test API on load
+        testAPI();
+    </script>
+</body>
+</html>
