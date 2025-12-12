@@ -1,0 +1,32 @@
+{
+    "engines": [
+        {
+            "id": "google",
+            "name": "Google",
+            "search_url": "https://www.google.com/search?q=",
+            "homepage": "https://www.google.com",
+            "icon": "https://www.google.com/favicon.ico"
+        },
+        {
+            "id": "bing",
+            "name": "Bing",
+            "search_url": "https://www.bing.com/search?q=",
+            "homepage": "https://www.bing.com",
+            "icon": "https://www.bing.com/favicon.ico"
+        },
+        {
+            "id": "duckduckgo",
+            "name": "DuckDuckGo",
+            "search_url": "https://duckduckgo.com/?q=",
+            "homepage": "https://duckduckgo.com",
+            "icon": "https://duckduckgo.com/favicon.ico"
+        },
+        {
+            "id": "yahoo",
+            "name": "Yahoo",
+            "search_url": "https://search.yahoo.com/search?p=",
+            "homepage": "https://www.yahoo.com",
+            "icon": "https://www.yahoo.com/favicon.ico"
+        }
+    ]
+}
