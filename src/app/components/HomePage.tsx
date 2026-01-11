@@ -24,7 +24,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
             <Globe className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-4xl mb-2">Welcome to WebExplorer</h1>
+          <h1 className="text-4xl mb-2">Welcome to KiaWebExplorer</h1>
           <p className="text-gray-600">
             Browse the web, rate websites, and share your thoughts
           </p>
