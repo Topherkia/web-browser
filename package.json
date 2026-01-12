@@ -2,7 +2,7 @@
   "name": "@figma/my-make-file",
   "private": true,
   "version": "0.0.1",
-  "type": "module",
+
   "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -92,5 +92,4 @@
       "vite": "6.3.5"
     }
   }
-  
 }
